@@ -5,7 +5,6 @@
 <img alt="VaxHub" src="ab.jpg" />
 </p>
 
-The site is live at http://143-42-79-74.ip.linodeusercontent.com/.
 
 ## Project  Overview
 
