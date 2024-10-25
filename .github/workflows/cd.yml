@@ -1,0 +1,84 @@
+name: AKS Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker Build for User
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/user-image:0.0.1' ./user
+
+    - name: Docker Build for TrainSchedule
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/trainschedule-image:0.0.1' ./trainSchedule
+
+    - name: Docker Build for SeatSelection
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/seatselection-image:0.0.1' ./seatSelection
+
+    - name: Docker Build for Booking
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/booking-image:0.0.1' ./booking
+
+    - name: Docker Build for Payment
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/payment-image:0.0.1' ./payment
+
+    - name: Docker Build for OTP
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/otp-image:0.0.1' ./otp
+
+    - name: Docker Login
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username '${{ secrets.DOCKER_LOGIN }}' --password-stdin
+
+    - name: Push Docker Images
+      run: |
+        docker push '${{ secrets.DOCKER_LOGIN }}/user-image:0.0.1'
+        docker push '${{ secrets.DOCKER_LOGIN }}/trainschedule-image:0.0.1'
+        docker push '${{ secrets.DOCKER_LOGIN }}/seatselection-image:0.0.1'
+        docker push '${{ secrets.DOCKER_LOGIN }}/booking-image:0.0.1'
+        docker push '${{ secrets.DOCKER_LOGIN }}/payment-image:0.0.1'
+        docker push '${{ secrets.DOCKER_LOGIN }}/otp-image:0.0.1'
+
+    - name: Azure Kubernetes Set Context
+      uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        resource-group: practise-aks-cluster
+        cluster-name: ruwad51
+
+    - name: Create K8s Secret
+      uses: Azure/k8s-create-secret@v1.1
+      with:
+        container-registry-url: https://index.docker.io/v1/
+        container-registry-username: '${{ secrets.DOCKER_LOGIN }}'
+        container-registry-password: '${{ secrets.DOCKER_PASSWORD }}'
+        secret-type: docker-registry
+        secret-name: docker-image-pull-secret
+
+    - name: Deploy to Kubernetes Cluster
+      uses: Azure/k8s-deploy@v1
+      with:        
+        manifests: |
+          manifests/namespace.yaml
+          manifests/user-deployment.yaml
+          manifests/trainschedule-deployment.yaml
+          manifests/seatselection-deployment.yaml
+          manifests/booking-deployment.yaml
+          manifests/payment-deployment.yaml
+          manifests/otp-deployment.yaml
+          manifests/redis-deployment.yaml
+          manifests/ingress.yaml
+          manifests/resource-quota.yaml
+        images: |
+          ${{ secrets.DOCKER_LOGIN }}/user-image:0.0.1
+          ${{ secrets.DOCKER_LOGIN }}/trainschedule-image:0.0.1
+          ${{ secrets.DOCKER_LOGIN }}/seatselection-image:0.0.1
+          ${{ secrets.DOCKER_LOGIN }}/booking-image:0.0.1
+          ${{ secrets.DOCKER_LOGIN }}/payment-image:0.0.1
+          ${{ secrets.DOCKER_LOGIN }}/otp-image:0.0.1
+        imagepullsecrets: docker-image-pull-secret
+        action: deploy
