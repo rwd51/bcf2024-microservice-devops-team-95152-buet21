@@ -7,14 +7,56 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout code from the repository
     - uses: actions/checkout@v2
 
-    # Docker build and push steps omitted for brevity
+    # Step 2: Build Docker images for each microservice
+    - name: Docker Build for User
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/user-image:0.0.1' ./user
 
+    - name: Docker Build for TrainSchedule
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/trainschedule-image:0.0.1' ./trainSchedule
+
+    - name: Docker Build for SeatSelection
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/seatselection-image:0.0.1' ./seatSelection
+
+    - name: Docker Build for Booking
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/booking-image:0.0.1' ./booking
+
+    - name: Docker Build for Payment
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/payment-image:0.0.1' ./payment
+
+    - name: Docker Build for OTP
+      run: docker build -t '${{ secrets.DOCKER_LOGIN }}/otp-image:0.0.1' ./otp
+
+    # Step 3: Log in to Docker Hub using credentials stored in GitHub Secrets
+    - name: Docker Login
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username '${{ secrets.DOCKER_LOGIN }}' --password-stdin
+
+    # Step 4: Push Docker images to Docker Hub
+    - name: Push User Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/user-image:0.0.1'
+
+    - name: Push TrainSchedule Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/trainschedule-image:0.0.1'
+
+    - name: Push SeatSelection Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/seatselection-image:0.0.1'
+
+    - name: Push Booking Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/booking-image:0.0.1'
+
+    - name: Push Payment Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/payment-image:0.0.1'
+
+    - name: Push OTP Image
+      run: docker push '${{ secrets.DOCKER_LOGIN }}/otp-image:0.0.1'
+
+    # Step 5: Set Azure Kubernetes Context
     - name: Azure Kubernetes Set Context
       uses: Azure/aks-set-context@v1
       with:
@@ -22,6 +64,7 @@ jobs:
         resource-group: practise-aks-cluster
         cluster-name: ruwad51
 
+    # Step 6: Create Kubernetes secret for pulling Docker images from Docker Hub
     - name: Create K8s Secret
       uses: Azure/k8s-create-secret@v1.1
       with:
@@ -31,6 +74,7 @@ jobs:
         secret-type: docker-registry
         secret-name: docker-image-pull-secret
 
+    # Step 7: Deploy to Kubernetes Cluster
     - name: Deploy to Kubernetes Cluster
       uses: Azure/k8s-deploy@v1
       with:        
