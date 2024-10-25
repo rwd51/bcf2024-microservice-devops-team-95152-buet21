@@ -2,7 +2,7 @@
  Service
 
 <p align='center'>
-<img alt="VaxHub" src="assets/vaxhub-logo.png" />
+<img alt="VaxHub" src="ab.jpg" />
 </p>
 
 The site is live at http://143-42-79-74.ip.linodeusercontent.com/.
@@ -16,9 +16,6 @@ In response to the overwhelming traffic during peak ticket sales periods, I deve
 This project utilizes `Jest, Supertest, Github Actions, Docker and Kubernetes` for test automation, continuous integration and deployment.
 
 ## System Architecture Diagram
-<p align='center'>
-<img alt="VaxHub" src="assets/diagram.png" />
-</p>
 
 ## Table of Contents
 
