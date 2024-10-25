@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seatselection-deployment
+  namespace: train-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: seatselection
+  template:
+    metadata:
+      labels:
+        app: seatselection
+    spec:
+      containers:
+      - name: seatselection-container
+        image: seatselection-image:latest  # Update with your image
+        ports:
+        - containerPort: 3002
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        envFrom:
+        - configMapRef:
+            name: seatselection-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seatselection-service
+  namespace: train-system
+spec:
+  type: ClusterIP
+  selector:
+    app: seatselection
+  ports:
+  - port: 3002
+    targetPort: 3002

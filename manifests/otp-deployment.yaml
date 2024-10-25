@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otp-deployment
+  namespace: train-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: otp
+  template:
+    metadata:
+      labels:
+        app: otp
+    spec:
+      containers:
+      - name: otp-container
+        image: rwdnas1/otp-image:0.0.1  # Update with your image
+        ports:
+        - containerPort: 3005
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        envFrom:
+        - configMapRef:
+            name: otp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otp-service
+  namespace: train-system
+spec:
+  type: ClusterIP
+  selector:
+    app: otp
+  ports:
+  - port: 3005
+    targetPort: 3005

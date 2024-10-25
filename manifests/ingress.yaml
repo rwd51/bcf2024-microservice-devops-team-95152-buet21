@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: train-system-ingress
+  namespace: train-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: train-system.example.com  # Replace with your domain
+    http:
+      paths:
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3000
+      - path: /trainschedule
+        pathType: Prefix
+        backend:
+          service:
+            name: trainschedule-service
+            port:
+              number: 3001
+      - path: /seatselection
+        pathType: Prefix
+        backend:
+          service:
+            name: seatselection-service
+            port:
+              number: 3002
+      - path: /booking
+        pathType: Prefix
+        backend:
+          service:
+            name: booking-service
+            port:
+              number: 3003
+      - path: /payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 3004
+      - path: /otp
+        pathType: Prefix
+        backend:
+          service:
+            name: otp-service
+            port:
+              number: 3005

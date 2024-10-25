@@ -1,0 +1,17 @@
+datasource db {
+  provider = "postgresql" // Change this according to your database (e.g., "mysql", "sqlite", etc.)
+  url      = env("DATABASE_URL") // Database connection URL from your .env file
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model User {
+  id              Int    @id @default(autoincrement())
+  name            String
+  email           String @unique
+  password_hash   String
+  contact_details String?
+}

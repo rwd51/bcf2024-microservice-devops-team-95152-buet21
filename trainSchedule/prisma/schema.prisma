@@ -1,0 +1,30 @@
+datasource db {
+  provider = "postgresql" // or your preferred database
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+
+model Train {
+  id          Int     @id @default(autoincrement())
+  name        String
+  route       String
+  schedule    String
+  seats       Seat[]
+}
+
+model Seat {
+  id          Int     @id @default(autoincrement())
+  trainId     Int
+  coachNumber Int
+  seatNumber  Int
+  status      String  // e.g., "available", "booked", "reserved"
+
+  train       Train    @relation(fields: [trainId], references: [id])
+
+  @@unique([trainId, coachNumber, seatNumber]) // Ensure unique seats in each coach
+}

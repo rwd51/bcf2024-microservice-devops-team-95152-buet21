@@ -1,0 +1,71 @@
+services:
+  user:
+    build:
+      context: ./user
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./user/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  trainschedule:  # Changed to lowercase
+    build:
+      context: ./trainSchedule
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./trainSchedule/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  seatselection:  # Changed to lowercase
+    build:
+      context: ./seatSelection
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./seatSelection/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  booking:  # No change needed
+    build:
+      context: ./booking
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./booking/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  payment:  # No change needed
+    build:
+      context: ./payment
+    ports:
+      - "3004:3004"
+    env_file:
+      - ./payment/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  otp:  # No change needed
+    build:
+      context: ./otp
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./otp/.env
+    depends_on:
+      - redis
+    command: npm start
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"

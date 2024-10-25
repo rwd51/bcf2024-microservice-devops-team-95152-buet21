@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-deployment
+  namespace: train-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+      - name: payment-container
+        image: rwdnas1/payment-image:0.0.1  # Update with your image
+        ports:
+        - containerPort: 3004
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        envFrom:
+        - configMapRef:
+            name: payment-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: train-system
+spec:
+  type: ClusterIP
+  selector:
+    app: payment
+  ports:
+  - port: 3004
+    targetPort: 3004
