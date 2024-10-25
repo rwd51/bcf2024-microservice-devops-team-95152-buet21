@@ -30,7 +30,7 @@ jobs:
           npm test
 
       - name: Test Seat Selection Service
-        working-directory: ./seatselection
+        working-directory: ./seatSelection
         run: |
           npm ci
           npm test
