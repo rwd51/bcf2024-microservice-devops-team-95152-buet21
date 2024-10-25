@@ -1,0 +1,51 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci_verification:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Test User Service
+        working-directory: ./user
+        run: |
+          npm ci
+          npm test
+
+      - name: Test Seat Selection Service
+        working-directory: ./seatselection
+        run: |
+          npm ci
+          npm test
+      - name: Test Payment Service
+        working-directory: ./payment
+        run: |
+          npm ci
+          npm test
+      - name: Test OTP Service
+        working-directory: ./otp
+        run: |
+          npm ci
+          npm test
+      - name: Test Booking Service
+        working-directory: ./booking
+        run: |
+          npm ci
+          npm test
